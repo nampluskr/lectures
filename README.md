@@ -6,7 +6,8 @@
 - NA2: Linear Algebra
 - NA3: Ordinary Differential Equations
 - NA4: Partitial Differential Equations
-- NA5: Neural Networks
+- NA5: Physics Informed Neural Networks
+- NA6: Neural Operator Networks
 
 ## Machine Learning
 
