@@ -13,22 +13,22 @@ def gradient(y, x):
 
 
 class MLP(nn.Module):
-    def __init__(self, layer_sizes, activation=nn.Tanh()):
+    def __init__(self, layer_sizes, activation=nn.Tanh(), final_activation=None):
         super().__init__()
         self.input_size = layer_sizes[0]
         self.output_size = layer_sizes[-1]
 
         layers = []
         for i in range(len(layer_sizes) - 2):
-            layers.append(nn.Linear(layer_sizes[i], layer_sizes[i+1]))
+            layers.append(nn.Linear(layer_sizes[i], layer_sizes[i + 1]))
             layers.append(activation)
         layers.append(nn.Linear(layer_sizes[-2], layer_sizes[-1]))
+        if final_activation is not None:
+            layers.append(final_activation)
         self.model = nn.Sequential(*layers)
 
-    def forward(self, inputs):
-        if self.input_size > 1:
-            inputs = torch.hstack(inputs)
-        return self.model(inputs)
+    def forward(self, x):
+        return self.model(x)
 
 
 class Trainer:
@@ -38,7 +38,7 @@ class Trainer:
         self.loss_functions = loss_functions
         self.targets = targets
         self.mse = nn.MSELoss()
-        # self.device = next(model.parameters()).device
+        self.device = next(model.parameters()).device
 
         self.history = {"total": []}
         for name in self.loss_functions:
@@ -46,10 +46,10 @@ class Trainer:
         for name in self.targets:
             self.history[name] = []
 
-        self.loss_weights = {name: 1 for name in self.history}
+        self.loss_weights = {name: 1.0 for name in self.history}
 
     def fit(self, inputs, n_epochs, scheduler=None, update_step=10):
-        with tqdm(range(1, n_epochs+1), file=sys.stdout, ascii=True, ncols=200) as pbar:
+        with tqdm(range(1, n_epochs+1), file=sys.stdout, ascii=True, dynamic_ncols=True) as pbar:
             for epoch in pbar:
                 total_loss = 0
 
