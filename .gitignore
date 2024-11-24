@@ -1,5 +1,5 @@
 *.mat
 *.npy
 *.npz
-data/
-__pycache__/
+data/*.*
+__pycache__/*.*
