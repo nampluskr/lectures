@@ -1,6 +1,7 @@
 ## PINN: Heat Equation
 
 - https://lazyjobseeker.github.io/en/posts/physics-informed-neural-network-tutorials/
+- https://github.com/Matt2371/PINN_navier_stokes
 - https://github.com/udemirezen/PINN-1
 - Building a Physics-Informed Neural Network (PINN) Using PyTorch From Scratch Solving the 1D Heat Equation (Aarafat Islam)
 - https://dcn.nat.fau.eu/pinns-introductory-code-for-the-heat-equation/
