@@ -1,9 +1,15 @@
 import numpy as np
+from scipy.special import expit
+
+
+def one_hot(y, n_classes):
+    return np.eye(n_classes)[y]
 
 
 ## Activation functions
 def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+    # return 1 / (1 + np.exp(-x))
+    return expit(x)
 
 
 def softmax(x) :
@@ -18,6 +24,25 @@ def relu(x):
 def tanh(x):
     return np.tanh(x)
 
+## Loss functions
+def mse_loss(y_pred, y):
+    return np.mean((y_pred - y)**2)
+
+
+def bce_loss(y_pred, y):
+    if y.ndim == 1:
+        y = y.reshape(-1, 1)
+    return -np.mean(y * np.log(y_pred + 1e-7))
+
+
+def cross_entropy_loss(y_pred, y):
+    if y.ndim == 2:     # y: one-hot encoding (N, n_classes)
+        return bce_loss(y_pred, y)  
+    else:               # y: label (N, 1)
+        batch_size = y_pred.shape[0]
+        n_classes = y_pred.shape[1]
+        return -np.mean(np.log(y_pred[np.arange(batch_size), y] + 1e-7)) / n_classes
+
 
 ## Metrics
 def rsme(y_pred, y):
@@ -27,11 +52,14 @@ def rsme(y_pred, y):
 
 
 def binary_accuracy(y_pred, y):
-    pass
+    y_pred = (y_pred > 0.5).astype(int)
+    return np.mean(y_pred == y)
 
 
 def accuracy(y_pred, y):
-    pass
+    if y.ndim == 2:
+        y = y.argmax(1)
+    return np.mean(y_pred.argmax(1) == y)
 
 
 ## Neural layers
@@ -52,8 +80,7 @@ class Module:
 class Linear(Module):
     def __init__(self, input_size, output_size):
         super().__init__()
-        self.w = np.ones((input_size, output_size)) * 0.01
-        # self.w = np.random.randn(input_size, output_size) / np.sqrt(input_size)
+        self.w = np.random.randn(input_size, output_size) / np.sqrt(input_size)
         self.b = np.zeros(output_size)
         self.grad_w = np.zeros_like(self.w)
         self.grad_b = np.zeros_like(self.b)
@@ -105,22 +132,21 @@ class Tanh(Module):
 ## Loss functions
 class MSELoss:
     def __call__(self, y_pred, y):
-        loss = np.mean((y_pred - y)**2)
+        loss = mse_loss(y_pred, y)
         dout = 2 * (y_pred - y) / len(y)
         return loss, dout
 
 
 class BCELoss:
-    def __call__(self, y_pred, y):      # y_pred, y: (N, 1)
-        loss = -np.mean(y * np.log(y_pred + 1e-7))
-        dout = -y / y_pred / len(y)
+    def __call__(self, y_pred, y):      # y_pred: (N, 1), y: (N, 1)
+        loss = bce_loss(y_pred, y)
+        dout = (y_pred - y) / y_pred / (1 - y_pred) / len(y)
         return loss, dout
 
 
 class CELossWithLogit:
-    def __call__(self, y_pred, y):      # y_pred: (N, n_classes), # y: (N,)
-        y_pred = softmax(y_pred)
-        loss = -np.mean(np.log(y_pred[:, y]))
+    def __call__(self, y_pred, y):      # y_pred: (N, n_classes), # y: (N, n_classes)
+        loss = cross_entropy_loss(softmax(y_pred), y)
         dout = (y_pred - y) / len(y)
         return loss, dout
 
