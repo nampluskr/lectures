@@ -1,4 +1,8 @@
+- https://lazyjobseeker.github.io/en/posts/physics-informed-neural-network-tutorials/
 - https://github.com/udemirezen/PINN-1
+- Building a Physics-Informed Neural Network (PINN) Using PyTorch From Scratch Solving the 1D Heat Equation (Aarafat Islam)
+- https://dcn.nat.fau.eu/pinns-introductory-code-for-the-heat-equation/
+- https://github.com/DCN-FAU-AvH/pinns_heat
 
 ```python
 import random
