@@ -72,12 +72,12 @@
   - Code(deepxde): https://github.com/lu-group/deeponet-fno
 
 
-### PoU-DeepONet (Partition-of-Unity DeepONet, )
+### PoU-DeepONet (Partition-of-Unity DeepONet, 2024)
 - S. Goswami, A.D. Jagtap, H. Babaee, B.T. Susi, G.E. Karniadakis, Learning stiff chemical kinetics using extended deep neural operators, Comput. Methods Appl. Mech. Engrg. 419 (2024) 116674
   - Link: https://www.sciencedirect.com/science/article/pii/S0045782523007971
   - Code(tf): https://github.com/somdattagoswami/Approximating-StiffKinetics
 
 
-### DeepONet-2ST (DeepONet with 2-Step Training)
+### DeepONet-2ST (DeepONet with 2-Step Training, 2023)
 - S. Lee, Y. Shin, On the training and generalization of deep operator networks, 2023, arXiv preprint arXiv:2309.01020
   - Link: https://arxiv.org/abs/2309.01020
