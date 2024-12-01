@@ -21,6 +21,10 @@
   - Link: https://arxiv.org/abs/2111.03794
   - Code(pytorch): https://github.com/neuraloperator/physics_informed
 
+- Shawn G. Rosofsky, Hani Al Majed, E. A. Huerta, Applications of physics informed neural operators, arXiv preprint 	arXiv:2203.12634
+  - Link: https://arxiv.org/abs/2203.12634
+  - Code(pytorch): https://github.com/shawnrosofsky/PINO_Applications
+
 
 ### PINN (Physics-informed Neural Networks, 2019)
 - M. Raissi, P. Perdikaris, G.E. Karniadakis, Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations, J. Comput. Phys. 378 (2019) 686–707
