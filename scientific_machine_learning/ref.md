@@ -16,6 +16,12 @@
   - Code: https://github.com/jdtoscano94/Learning-Scientific_Machine_Learning_Residual_Based_Attention_PINNs_DeepONets
 
 
+### PINO (Physics-informed Neural Operators, 2024)
+- Zongyi Li, Hongkai Zheng, Nikola Kovachki, David Jin, Haoxuan Chen, Burigede Liu, Kamyar Azizzadenesheli, Anima Anandkumar, Physics-Informed Neural Operator for Learning Partial Differential Equations, 2024, arXiv preprint arXiv:arXiv:2111.03794
+  - Link: https://arxiv.org/abs/2111.03794
+  - Code(pytorch): https://github.com/neuraloperator/physics_informed
+
+
 ### PINN (Physics-informed Neural Networks, 2019)
 - M. Raissi, P. Perdikaris, G.E. Karniadakis, Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations, J. Comput. Phys. 378 (2019) 686–707
   - Link: https://www.sciencedirect.com/science/article/pii/S0021999118307125
