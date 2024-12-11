@@ -21,44 +21,47 @@ x_test_scaled = scaler.transform(x_test)
 
 print(">> Train:", x_train_scaled.shape, y_train.shape)
 print(">> Test: ", x_test_scaled.shape, y_test.shape)
-
-x, y = x_train_scaled, y_train.reshape(-1, 1)
-print(x.shape, y.shape)
 ```
 
 ```python
+## Preprocess
+x, y = x_train_scaled, y_train.reshape(-1, 1)
+print(x.shape, y.shape)
+
 ## Model
 np.random.seed(42)
 input_size, hidden_size, output_size = 10, 100, 1
 
-w1 = np.random.randn(input_size, hidden_size) / np.sqrt(input_size)
-b1 = np.zeros(hidden_size)
-w2 = np.random.randn(hidden_size, output_size) / np.sqrt(hidden_size)
-b2 = np.zeros(output_size)
+w1 = np.random.randn(input_size, hidden_size)   # weight of 1st layer
+b1 = np.zeros(hidden_size)                      # bias of 1st layer
+w2 = np.random.randn(hidden_size, output_size)  # weight of 2nd layer
+b2 = np.zeros(output_size)                      # bias of 2nd layer
 
 ## Train
-n_epochs = 1000
-learning_rate = 0.01
+n_epochs = 10000
+learning_rate = 0.1
 
 for epoch in range(1, n_epochs + 1):
     # Forward propagation
-    z1 = np.dot(x, w1) + b1
-    a1 = nn.sigmoid(z1)
+    a0 = x
+    z1 = np.dot(a0, w1) + b1
+    a1 = sigmoid(z1)
     z2 = np.dot(a1, w2) + b2
-    out = z2
+    a2 = identity(z2)
 
-    loss = np.mean((out - y)**2)
-    score = nn.rsme(out, y)
+    loss = np.mean((a2 - y)**2)
+    score = r2_score(a2, y)
 
     # Backward propagation
-    grad_out = 2 * (out - y) / y.shape[0]
-    grad_z2 = grad_out
+    grad_a2 = 2 * (a2 - y) / len(y)
+    grad_z2 = grad_a2 * 1
+    grad_a1 = np.dot(grad_z2, w2.T)
+    grad_z1 = grad_a1 * a1 * (1 - a1)
+    grad_a0 = np.dot(grad_z1, w1.T)
+
     grad_w2 = np.dot(a1.T, grad_z2)
     grad_b2 = np.sum(grad_z2, axis=0)
-
-    grad_a1 = np.dot(grad_z2, w2.T)
-    grad_z1 = a1 * (1 - a1) * grad_a1
-    grad_w1 = np.dot(x.T, grad_z1)
+    grad_w1 = np.dot(a0.T, grad_z1)
     grad_b1 = np.sum(grad_z1, axis=0)
 
     # Update weights and biases
@@ -118,38 +121,44 @@ print(x.shape, y.shape)
 ```
 
 ```python
+## Preprocess
+x, y = x_train_scaled, y_train.reshape(-1, 1)
+print(x.shape, y.shape)
+
 ## Model
 np.random.seed(42)
 input_size, hidden_size, output_size = 30, 100, 1
 
-w1 = np.random.randn(input_size, hidden_size) / np.sqrt(input_size)
-b1 = np.zeros(hidden_size)
-w2 = np.random.randn(hidden_size, output_size) / np.sqrt(hidden_size)
-b2 = np.zeros(output_size)
+w1 = np.random.randn(input_size, hidden_size)   # weight of 1st layer
+b1 = np.zeros(hidden_size)                      # bias of 1st layer
+w2 = np.random.randn(hidden_size, output_size)  # weight of 2nd layer
+b2 = np.zeros(output_size)                      # bias of 2nd layer
 
 ## Train
-n_epochs = 100
+n_epochs = 10000
 learning_rate = 0.01
 
 for epoch in range(1, n_epochs + 1):
     # Forward propagation
-    z1 = np.dot(x, w1) + b1
-    a1 = nn.sigmoid(z1)
-    z2 = np.dot(a1, w2) + b2
-    y_pred = out = nn.sigmoid(z2)
+    a0 = x
+    z1 = np.matmul(a0, w1) + b1
+    a1 = sigmoid(z1)
+    z2 = np.matmul(a1, w2) + b2
+    a2 = sigmoid(z2)
 
-    loss = nn.bce_loss(y_pred, y)
-    score = nn.binary_accuracy(y_pred, y)
+    loss = binary_cross_entropy(a2, y)
+    score = binary_accuracy(a2, y)
 
     # Backward propagation
-    dout = (out - y) / out / (1 - out) / len(y)
-    grad_z2 = out * (1 - out) * dout
-    grad_w2 = np.dot(a1.T, grad_z2)
-    grad_b2 = np.sum(grad_z2, axis=0)
+    grad_a2 = (a2 - y) / a2 / (1 - a2) / len(y)
+    grad_z2 = grad_a2 * a2 * (1 - a2)
+    grad_a1 = np.matmul(grad_z2, w2.T)
+    grad_z1 = grad_a1 * a1 * (1 - a1)
+    grad_a0 = np.matmul(grad_z1, w1.T)
 
-    grad_a1 = np.dot(grad_z2, w2.T)
-    grad_z1 = a1 * (1 - a1) * grad_a1
-    grad_w1 = np.dot(x.T, grad_z1)
+    grad_w2 = np.matmul(a1.T, grad_z2)
+    grad_b2 = np.sum(grad_z2, axis=0)
+    grad_w1 = np.matmul(a0.T, grad_z1)
     grad_b1 = np.sum(grad_z1, axis=0)
 
     # Update weights and biases
@@ -210,37 +219,43 @@ print(x.shape, y.shape)
 ```
 
 ```python
-# Model
+## Preprocess
+x, y = x_train_scaled, one_hot(y_train, n_classes=3)
+print(x.shape, y.shape)
+
+## Model
 np.random.seed(42)
 input_size, hidden_size, output_size = 4, 100, 3
-
-w1 = np.random.randn(input_size, hidden_size) / np.sqrt(input_size)
-b1 = np.zeros(hidden_size)
-w2 = np.random.randn(hidden_size, output_size) / np.sqrt(hidden_size)
-b2 = np.zeros(output_size)
+ 
+w1 = np.random.randn(input_size, hidden_size)   # weight of 1st layer
+b1 = np.zeros(hidden_size)                      # bias of 1st layer
+w2 = np.random.randn(hidden_size, output_size)  # weight of 2nd layer
+b2 = np.zeros(output_size)                      # bias of 2nd layer
 
 ## Train
-n_epochs = 100
+n_epochs = 1000
 learning_rate = 0.01
 
 for epoch in range(1, n_epochs + 1):
     # Forward propagation
-    z1 = np.dot(x, w1) + b1
-    a1 = nn.sigmoid(z1)
-    z2 = np.dot(a1, w2) + b2
-    out = nn.softmax(z2)
+    a0 = x
+    z1 = np.matmul(a0, w1) + b1
+    a1 = sigmoid(z1)
+    z2 = np.matmul(a1, w2) + b2
+    a2 = softmax(z2)
 
-    loss = nn.cross_entropy_loss(out, y)
-    score = nn.accuracy(out, y)
+    loss = cross_entropy(a2, y)
+    score = accuracy(a2, y)
 
     # Backward propagation
-    grad_z2 = (z2 - y) / y.shape[0]
-    grad_w2 = np.dot(a1.T, grad_z2)
-    grad_b2 = np.sum(grad_z2, axis=0)
+    grad_z2 = (z2 - y) / len(y)
+    grad_a1 = np.matmul(grad_z2, w2.T)
+    grad_z1 = grad_a1 * a1 * (1 - a1)
+    grad_a0 = np.matmul(grad_z1, w1.T)
 
-    grad_a1 = np.dot(grad_z2, w2.T)
-    grad_z1 = a1 * (1 - a1) * grad_a1
-    grad_w1 = np.dot(x.T, grad_z1)
+    grad_w2 = np.matmul(a1.T, grad_z2)
+    grad_b2 = np.sum(grad_z2, axis=0)
+    grad_w1 = np.matmul(a0.T, grad_z1)
     grad_b1 = np.sum(grad_z1, axis=0)
 
     # Update weights and biases
