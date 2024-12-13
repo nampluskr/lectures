@@ -60,7 +60,7 @@ class Trainer:
         if valid_loader is not None:
             history.update({f"val_{name}": [] for name in self.metrics})
 
-        for epoch in range(1, n_epochs):
+        for epoch in range(1, n_epochs + 1):
             cur_epoch = str(epoch).rjust(len(str(n_epochs)), ' ')
             cur_epoch = f"[{cur_epoch}/{n_epochs}]"
 
@@ -75,7 +75,10 @@ class Trainer:
                     desc = ""
                     for name in self.metrics:
                         res[name] += res_step[name]
-                        desc += f" {name}: {res[name]/(i+1):.3f}"
+                        if name == "loss":
+                            desc += f" {name}: {res[name]/(i+1):.2e}"
+                        else:
+                            desc += f" {name}: {res[name]/(i+1):.3f}"
 
                     pbar.set_description(cur_epoch + desc)
 
@@ -94,8 +97,11 @@ class Trainer:
             res = self.evaluate(valid_loader)
             val_desc = ""
             for name in self.metrics:
-                val_desc += f" val_{name}: {res[name]:.3f}"
                 history[f"val_{name}"].append(res[name])
+                if name == "loss":
+                    val_desc += f" val_{name}: {res[name]:.2e}"
+                else:
+                    val_desc += f" val_{name}: {res[name]:.3f}"
 
             if epoch % step_size == 0:
                 print(cur_epoch + desc + " |" + val_desc)
@@ -126,11 +132,12 @@ class Trainer:
         return res
 
 
-class TrainerAE(Trainer):
+class AETrainer(Trainer):
     def train_step(self, x, y):
         x = x.to(self.device)
         x_pred = self.model(x)
         loss = self.loss_fn(x_pred, x)
+
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
@@ -141,6 +148,33 @@ class TrainerAE(Trainer):
         x = x.to(self.device)
         x_pred = self.model(x)
         return {name: func(x_pred, x).item() for name, func in self.metrics.items()}
+
+
+class VAETrainer(Trainer):
+    def train_step(self, x, y):
+        x = x.to(self.device)
+        x_pred, mu, logvar = self.model(x)
+        loss = self.loss_fn(x_pred, x, mu, logvar)
+
+        loss.backward()
+        self.optimizer.step()
+        self.optimizer.zero_grad()
+
+        res = {"loss": loss.item()}
+        res.update({name: func(x_pred, x).item() 
+                    for name, func in self.metrics.items() if name != "loss"})
+        return res
+
+    @torch.no_grad()
+    def test_step(self, x, y):
+        x = x.to(self.device)
+        x_pred, mu, logvar = self.model(x)
+        loss = self.loss_fn(x_pred, x, mu, logvar)
+
+        res = {"loss": loss.item()}
+        res.update({name: func(x_pred, x).item() 
+                    for name, func in self.metrics.items() if name != "loss"})
+        return res
 
 
 if __name__ == "__main__":
